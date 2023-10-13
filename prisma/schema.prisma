@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(uuid())
+  email    String    @unique
+  password String
+  role     USER_ROLE @default(CUSTOMER)
+
+  createdAt DateTime @default(now()) @map("created_At")
+  updatedAt DateTime @updatedAt
+
+  customers   Customer[]
+  admins      Admin[]
+  superAdmins SuperAdmin[]
+  technicians Technician[]
+
+  @@map("users")
+}
+
+model Customer {
+  id                 String  @id @default(uuid())
+  firstName          String  @map("first_name")
+  lastName           String  @map("last_name")
+  profilePicture     String? @map("profile_picture")
+  gender             Gender
+  contactNo          String  @unique @map("contact_no")
+  emergencyContactNo String? @map("emergency_contact_no")
+  presentAddress     String? @map("present_address")
+  permanentAddress   String? @map("permanent_address")
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
+}
+
+model Admin {
+  id                 String  @id @default(uuid())
+  firstName          String  @map("first_name")
+  lastName           String  @map("last_name")
+  profilePicture     String? @map("profile_picture")
+  gender             Gender
+  contactNo          String  @unique @map("contact_no")
+  emergencyContactNo String? @map("emergency_contact_no")
+  presentAddress     String? @map("present_address")
+  permanentAddress   String? @map("permanent_address")
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model SuperAdmin {
+  id                 String  @id @default(uuid())
+  firstName          String  @map("first_name")
+  lastName           String  @map("last_name")
+  profilePicture     String? @map("profile_picture")
+  gender             Gender
+  contactNo          String  @unique @map("contact_no")
+  emergencyContactNo String? @map("emergency_contact_no")
+  presentAddress     String? @map("present_address")
+  permanentAddress   String? @map("permanent_address")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("super_admins")
+}
+
+model Technician {
+  id                 String  @id @default(uuid())
+  firstName          String  @map("first_name")
+  lastName           String  @map("last_name")
+  profilePicture     String? @map("profile_picture")
+  gender             Gender
+  contactNo          String  @unique @map("contact_no")
+  emergencyContactNo String? @map("emergency_contact_no")
+  presentAddress     String  @map("present_address")
+  permanentAddress   String  @map("permanent_address")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("technicians")
+}
+
+enum USER_ROLE {
+  CUSTOMER
+  TECHNICIAN
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
