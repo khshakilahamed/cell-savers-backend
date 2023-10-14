@@ -1,6 +1,6 @@
 # Cell Savers (Mobile Repairing Center)
 
-Cell savers is a mobile repairing booking system project. In this project user can login in different role such as- Super admin, Admin, Technician & Customer. This project has several types of services to repairing mobile based on customer requirements. After getting the service, the user can rate the service and also share their feedback.
+Cell Savers is a mobile repair booking system project. In this project, users can log in to different roles such as Super Admin, Admin, Technician, and Customer. This project has several types of services for repairing mobile based on customer requirements. After getting the service, the user can rate the service and also share their feedback.
 
 ## Functional Requirements
 
