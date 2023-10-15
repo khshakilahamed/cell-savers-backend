@@ -5,6 +5,7 @@ import { authRoutes } from '../modules/auth/auth.route';
 import { roleRoutes } from '../modules/role/role.route';
 import { blogRoutes } from '../modules/blog/blog.route';
 import { faqRoutes } from '../modules/faq/faq.route';
+import { feedbackRoutes } from '../modules/feedBack/feedBack.route';
 
 const router = express.Router();
 
@@ -28,6 +29,10 @@ const moduleRoutes: any[] = [
   {
     path: '/faqs',
     route: faqRoutes,
+  },
+  {
+    path: '/feedbacks',
+    route: feedbackRoutes,
   },
 ];
 
