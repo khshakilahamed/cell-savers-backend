@@ -12,6 +12,61 @@ import {
   IRefreshTokenResponse,
 } from './auth.interface';
 import prisma from '../../../shared/prisma';
+import { USER_ROLE } from '@prisma/client';
+import { CreateUserType } from '../user/user.interface';
+
+const customerRegister = async (
+  payload: CreateUserType,
+): Promise<ILoginUserResponse> => {
+  const { password, ...othersData } = payload;
+
+  const isExistUser = await UserUtils.isExistUser(payload.email);
+
+  if (isExistUser) {
+    throw new ApiError(httpStatus.CONFLICT, 'User already exist');
+  }
+
+  const hashedPassword = await hashPasswordHelpers.hashPassword(password);
+
+  const userRole = await UserUtils.userRole(USER_ROLE.CUSTOMER);
+
+  const userData = {
+    email: payload.email,
+    roleId: userRole?.id || 'ef2aca77-bd59-434b-ac43-bb515be8e395',
+    password: hashedPassword,
+  };
+
+  const result = await prisma.$transaction(async transactionClient => {
+    const user = await transactionClient.user.create({
+      data: userData,
+      include: {
+        role: true,
+      },
+    });
+
+    const data = { ...othersData, userId: user.id };
+    await transactionClient.customer.create({ data });
+
+    const accessToken = jwtHelpers.createToken(
+      { userId: user.id, email: user.email, role: user.role.title },
+      config.jwt.secret as Secret,
+      config.jwt.expires_in as string,
+    );
+
+    const refreshToken = jwtHelpers.createToken(
+      { userId: user.id, email: user.email, role: user.role.title },
+      config.jwt.refresh_secret as Secret,
+      config.jwt.refresh_expires_in as string,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  });
+
+  return result;
+};
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   const { email, password } = payload;
@@ -32,15 +87,22 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   }
 
   //   console.log(isPasswordMatched);
-
   const accessToken = jwtHelpers.createToken(
-    { email: isExistUser.email, role: isExistUser.role },
+    {
+      userId: isExistUser.id,
+      email: isExistUser.email,
+      role: isExistUser.role.title,
+    },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   );
 
   const refreshToken = jwtHelpers.createToken(
-    { email: isExistUser.email, role: isExistUser.role },
+    {
+      userId: isExistUser.id,
+      email: isExistUser.email,
+      role: isExistUser.role.title,
+    },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string,
   );
@@ -73,7 +135,11 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   }
 
   const newAccessToken = jwtHelpers.createToken(
-    { email: isExistUser.email, role: isExistUser.role },
+    {
+      userId: isExistUser.id,
+      email: isExistUser.email,
+      role: isExistUser.role.title,
+    },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   );
@@ -109,8 +175,8 @@ const changePassword = async (
 
   await prisma.user.update({
     where: {
+      id: isExistUser.id,
       email: isExistUser.email,
-      role: isExistUser.role,
     },
     data: {
       password: newHashPassword,
@@ -120,4 +186,9 @@ const changePassword = async (
   //   console.log(isPasswordMatched);
 };
 
-export const AuthService = { loginUser, refreshToken, changePassword };
+export const AuthService = {
+  customerRegister,
+  loginUser,
+  refreshToken,
+  changePassword,
+};

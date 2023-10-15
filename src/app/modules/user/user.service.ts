@@ -1,22 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Admin,
-  Customer,
-  SuperAdmin,
-  Technician,
-  USER_ROLE,
-  User,
-} from '@prisma/client';
+import { USER_ROLE, User } from '@prisma/client';
 import prisma from '../../../shared/prisma';
 import { hashPasswordHelpers } from '../../../helpers/hashPasswordHelpers';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import { UserUtils } from './user.utils';
+import { CreateUserType } from './user.interface';
+import { selectResponseItem, userSelectOptions } from './user.constant';
 
-const createCustomer = async (data: Customer & User) => {
-  const { email, password, ...othersData } = data;
+const createCustomer = async (
+  payload: CreateUserType,
+): Promise<Partial<User>> => {
+  const { password, ...othersData } = payload;
 
-  const isExistUser = await UserUtils.isExistUser(email);
+  const isExistUser = await UserUtils.isExistUser(payload.email);
 
   if (isExistUser) {
     throw new ApiError(httpStatus.CONFLICT, 'User already exist');
@@ -24,132 +21,173 @@ const createCustomer = async (data: Customer & User) => {
 
   const hashedPassword = await hashPasswordHelpers.hashPassword(password);
 
-  const authData = {
-    email,
-    role: USER_ROLE.CUSTOMER,
+  const userRole = await UserUtils.userRole(USER_ROLE.CUSTOMER);
+
+  const userData = {
+    email: payload.email,
+    roleId: userRole?.id || 'ef2aca77-bd59-434b-ac43-bb515be8e395',
     password: hashedPassword,
   };
 
   const result = await prisma.$transaction(async transactionClient => {
-    const user = await transactionClient.user.create({ data: authData });
+    const user = await transactionClient.user.create({
+      data: userData,
+      select: { ...userSelectOptions },
+    });
 
     const data = { ...othersData, userId: user.id };
-    const customer = await transactionClient.customer.create({ data });
+    await transactionClient.customer.create({ data });
 
     return {
-      ...customer,
-      email: user.email,
-      role: user.role,
+      ...user,
     };
   });
 
   return result;
 };
 
-const createAdmin = async (data: Admin & User) => {
-  const { email, password, ...othersData } = data;
+const createAdmin = async (payload: CreateUserType): Promise<Partial<User>> => {
+  const userRole = await UserUtils.userRole(USER_ROLE.ADMIN);
 
-  const isExistUser = await UserUtils.isExistUser(email);
+  payload['roleId'] = userRole
+    ? userRole?.id
+    : 'a0b67827-c7a3-4dfb-b39f-28fc05592f59';
 
-  if (isExistUser) {
-    throw new ApiError(httpStatus.CONFLICT, 'User already exist');
-  }
-
-  const hashedPassword = await hashPasswordHelpers.hashPassword(password);
-
-  const authData = { email, role: USER_ROLE.ADMIN, password: hashedPassword };
-
-  const result = await prisma.$transaction(async transactionClient => {
-    const user = await transactionClient.user.create({ data: authData });
-
-    const data = { ...othersData, userId: user.id };
-    const admin = await transactionClient.admin.create({ data });
-
-    return {
-      ...admin,
-      email: user.email,
-      role: user.role,
-    };
-  });
+  const result = await UserUtils.createAgent(payload);
 
   return result;
 };
 
-const createSuperAdmin = async (data: SuperAdmin & User) => {
-  const { email, password, ...othersData } = data;
+const createSuperAdmin = async (
+  payload: CreateUserType,
+): Promise<Partial<User>> => {
+  const userRole = await UserUtils.userRole(USER_ROLE.SUPER_ADMIN);
 
-  const isExistUser = await UserUtils.isExistUser(email);
+  payload['roleId'] = userRole
+    ? userRole?.id
+    : '0df2893f-a74e-4b20-9fb6-62ec419c59b4';
 
-  if (isExistUser) {
-    throw new ApiError(httpStatus.CONFLICT, 'User already exist');
-  }
-
-  const hashedPassword = await hashPasswordHelpers.hashPassword(password);
-
-  const authData = {
-    email,
-    role: USER_ROLE.SUPER_ADMIN,
-    password: hashedPassword,
-  };
-
-  const result = await prisma.$transaction(async transactionClient => {
-    const user = await transactionClient.user.create({ data: authData });
-
-    const data = { ...othersData, userId: user.id };
-    const admin = await transactionClient.superAdmin.create({ data });
-
-    return {
-      ...admin,
-      email: user.email,
-      role: user.role,
-    };
-  });
+  const result = await UserUtils.createAgent(payload);
 
   return result;
 };
 
-const createTechnician = async (data: Technician & User) => {
-  const { email, password, ...othersData } = data;
+const createTechnician = async (
+  payload: CreateUserType,
+): Promise<Partial<User>> => {
+  const userRole = await UserUtils.userRole(USER_ROLE.TECHNICIAN);
 
-  const isExistUser = await UserUtils.isExistUser(email);
+  payload['roleId'] = userRole
+    ? userRole?.id
+    : '45cc3d91-7c46-41aa-a987-beafde47bf76';
 
-  if (isExistUser) {
-    throw new ApiError(httpStatus.CONFLICT, 'User already exist');
-  }
-
-  const hashedPassword = await hashPasswordHelpers.hashPassword(password);
-
-  const authData = {
-    email,
-    role: USER_ROLE.TECHNICIAN,
-    password: hashedPassword,
-  };
-
-  const result = await prisma.$transaction(async transactionClient => {
-    const user = await transactionClient.user.create({ data: authData });
-
-    const data = { ...othersData, userId: user.id };
-    const admin = await transactionClient.technician.create({ data });
-
-    return {
-      ...admin,
-      email: user.email,
-      role: user.role,
-    };
-  });
+  const result = await UserUtils.createAgent(payload);
 
   return result;
 };
 
-const getAllUsers = async (): Promise<any> => {
+const getAllUsers = async (): Promise<Partial<User>[]> => {
   const result = await prisma.user.findMany({
+    select: userSelectOptions,
+  });
+
+  return result;
+};
+
+const getSingleUser = async (id: string): Promise<Partial<User> | null> => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+    select: userSelectOptions,
+  });
+
+  return result;
+};
+
+const updateUser = async (
+  id: string,
+  payload: Partial<User>,
+): Promise<Partial<User> | null> => {
+  if (payload['email']) {
+    delete payload['email'];
+  }
+
+  const isExistUser =
+    id &&
+    (await prisma.user.findFirst({ where: { id }, include: { role: true } }));
+
+  if (!isExistUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User Not found');
+  }
+
+  if (isExistUser.role.title === USER_ROLE.CUSTOMER) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      'Customer Role could not be changeable',
+    );
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      ...payload,
+    },
+    select: selectResponseItem,
+  });
+
+  return result;
+};
+
+const deleteUser = async (id: string): Promise<Partial<User> | null> => {
+  const isExistUser = await prisma.user.findUnique({
+    where: {
+      id,
+    },
     include: {
-      admins: true,
-      customers: true,
-      superAdmins: true,
-      technicians: true,
+      role: true,
     },
   });
+
+  if (!isExistUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Use does not exist');
+  }
+
+  const result = await prisma.$transaction(async transactionClient => {
+    if (isExistUser.role.title === USER_ROLE.CUSTOMER) {
+      await transactionClient.customer.delete({
+        where: {
+          email: isExistUser.email,
+          userId: isExistUser.id,
+        },
+      });
+    } else {
+      await transactionClient.customerAgent.delete({
+        where: {
+          email: isExistUser.email,
+          userId: isExistUser.id,
+        },
+      });
+    }
+
+    const user = await transactionClient.user.delete({
+      where: {
+        id,
+      },
+      select: userSelectOptions,
+    });
+
+    return user;
+  });
+
+  // const result = await prisma.user.delete({
+  //   where: {
+  //     id,
+  //   },
+  //   select: selectResponseItem,
+  // });
 
   return result;
 };
@@ -160,4 +198,7 @@ export const UserService = {
   createSuperAdmin,
   createTechnician,
   getAllUsers,
+  getSingleUser,
+  updateUser,
+  deleteUser,
 };

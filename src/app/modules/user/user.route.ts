@@ -7,34 +7,55 @@ import { USER_ROLE } from '@prisma/client';
 
 const router = express.Router();
 
-router.get('/', UserController.getAllUsers);
+router.get(
+  '/',
+  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.getAllUsers,
+);
+router.get(
+  '/:id',
+  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.getSingleUser,
+);
 
 router.post(
   '/create-customer',
-  validateRequest(UserValidations.createCustomer),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  // validateRequest(UserValidations.createUser),
+  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.createCustomer,
 );
 
 router.post(
   '/create-admin',
-  validateRequest(UserValidations.createAdmin),
+  validateRequest(UserValidations.createUser),
   auth(USER_ROLE.SUPER_ADMIN),
   UserController.createAdmin,
 );
 
 router.post(
   '/create-super-admin',
-  validateRequest(UserValidations.createSuperAdmin),
+  validateRequest(UserValidations.createUser),
   auth(USER_ROLE.SUPER_ADMIN),
   UserController.createSuperAdmin,
 );
 
 router.post(
   '/create-technician',
-  validateRequest(UserValidations.createTechnician),
+  validateRequest(UserValidations.createUser),
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.createTechnician,
+);
+
+router.patch(
+  '/:id',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.updateUser,
+);
+
+router.delete(
+  '/:id',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.deleteUser,
 );
 
 export const userRoutes = router;

@@ -6,7 +6,7 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 
 ### Customer
 
-- Customer can login and log out.
+- Customer can register, login and log out.
 - Customer can manage and update their profile.
 - Customer can update certain fields.
 
@@ -31,3 +31,19 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 - Technician can log in and log out.
 - Technician can manage and update their profile.
 - Technician can only update certain fields.
+
+## API Endpoints
+
+### User
+
+- `POST /users/create-customer`
+- `POST /users/create-super-admin`
+- `POST /users/create-admin`
+- `POST /users/create-technician`
+
+### Authentication
+
+- `POST /auth/register` - only for customer
+- `POST /auth/login`
+- `POST /auth/refresh-token`
+- `POST /auth/change-password`

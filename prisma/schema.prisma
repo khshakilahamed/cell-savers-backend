@@ -11,18 +11,18 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  email    String    @unique
+  id       String @id @default(uuid())
+  email    String @unique
   password String
-  role     USER_ROLE @default(CUSTOMER)
 
   createdAt DateTime @default(now()) @map("created_At")
   updatedAt DateTime @updatedAt
 
-  customers   Customer[]
-  admins      Admin[]
-  superAdmins SuperAdmin[]
-  technicians Technician[]
+  customers      Customer[]
+  customerAgents CustomerAgent[]
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
@@ -31,8 +31,9 @@ model Customer {
   id                 String  @id @default(uuid())
   firstName          String  @map("first_name")
   lastName           String  @map("last_name")
+  email              String  @unique
   profilePicture     String? @map("profile_picture")
-  gender             Gender
+  gender             GENDER?
   contactNo          String  @unique @map("contact_no")
   emergencyContactNo String? @map("emergency_contact_no")
   presentAddress     String? @map("present_address")
@@ -41,18 +42,21 @@ model Customer {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now()) @map("created_At")
+  updatedAt DateTime   @updatedAt
+  bookings  Booking[]
+  feedBacks FeedBack[]
 
   @@map("customers")
 }
 
-model Admin {
+model CustomerAgent {
   id                 String  @id @default(uuid())
   firstName          String  @map("first_name")
   lastName           String  @map("last_name")
+  email              String  @unique
   profilePicture     String? @map("profile_picture")
-  gender             Gender
+  gender             GENDER?
   contactNo          String  @unique @map("contact_no")
   emergencyContactNo String? @map("emergency_contact_no")
   presentAddress     String? @map("present_address")
@@ -61,50 +65,142 @@ model Admin {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now()) @map("created_At")
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  reviews   Review[]
+  blogs     Blog[]
+  faqs      FAQ[]
 
-  @@map("admins")
+  @@map("customer_agents")
 }
 
-model SuperAdmin {
-  id                 String  @id @default(uuid())
-  firstName          String  @map("first_name")
-  lastName           String  @map("last_name")
-  profilePicture     String? @map("profile_picture")
-  gender             Gender
-  contactNo          String  @unique @map("contact_no")
-  emergencyContactNo String? @map("emergency_contact_no")
-  presentAddress     String? @map("present_address")
-  permanentAddress   String? @map("permanent_address")
+model Role {
+  id    String    @id @default(uuid())
+  title USER_ROLE @unique
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_At")
   updatedAt DateTime @updatedAt
+  users     User[]
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  @@map("super_admins")
+  @@map("roles")
 }
 
-model Technician {
-  id                 String  @id @default(uuid())
-  firstName          String  @map("first_name")
-  lastName           String  @map("last_name")
-  profilePicture     String? @map("profile_picture")
-  gender             Gender
-  contactNo          String  @unique @map("contact_no")
-  emergencyContactNo String? @map("emergency_contact_no")
-  presentAddress     String  @map("present_address")
-  permanentAddress   String  @map("permanent_address")
+model Blog {
+  id          String  @id @default(uuid())
+  title       String
+  image       String?
+  description String
 
-  createdAt DateTime @default(now())
+  customerAgentId String        @map("customer_agent_id")
+  customerAgent   CustomerAgent @relation(fields: [customerAgentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_At")
   updatedAt DateTime @updatedAt
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  @@map("blogs")
+}
 
-  @@map("technicians")
+model FAQ {
+  id String @id @default(uuid())
+
+  question String
+  answer   String
+
+  customerAgentId String        @map("customer_agent_id")
+  customerAgent   CustomerAgent @relation(fields: [customerAgentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_At")
+  updatedAt DateTime @updatedAt
+
+  @@map("faq_s")
+}
+
+model FeedBack {
+  id      String @id @default(uuid())
+  comment String
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_At")
+  updatedAt DateTime @updatedAt
+
+  @@map("feed_backs")
+}
+
+model Service {
+  id          String @id @default(uuid())
+  title       String @unique
+  price       Float
+  description String
+
+  createdAt DateTime  @default(now()) @map("created_At")
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  reviews   Review[]
+
+  @@map("services")
+}
+
+model TimeSlot {
+  id        String @id @default(uuid())
+  startTime String @map("start_time")
+  endTime   String @map("end_time")
+
+  createdAt DateTime  @default(now()) @map("created_At")
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+
+  @@map("time_slots")
+}
+
+model Booking {
+  id               String         @id @default(uuid())
+  bookingDate      DateTime       @map("booking_date")
+  issueDescription String         @map("issue_description")
+  bookingStatus    BOOKING_STATUS @default(PENDING)
+  issueStatus      ISSUE_STATUS   @default(PENDING)
+  readyToReview    Boolean        @default(false) @map("ready_to_review")
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  customerAgentId String        @map("customer_agent_id")
+  customerAgent   CustomerAgent @relation(fields: [customerAgentId], references: [id])
+
+  serviceId String  @map("service_id")
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  slotId String   @map("slot_id")
+  slot   TimeSlot @relation(fields: [slotId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_At")
+  updatedAt DateTime @updatedAt
+
+  reviews Review[]
+
+  @@map("bookings")
+}
+
+model Review {
+  id      String @id @default(uuid())
+  rating  Int
+  comment String
+
+  bookingId String  @map("booking_id")
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  serviceId String  @map("service_id")
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  customerAgentId String        @map("customer_agent_id")
+  customerAgent   CustomerAgent @relation(fields: [customerAgentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_At")
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
 }
 
 enum USER_ROLE {
@@ -114,8 +210,22 @@ enum USER_ROLE {
   SUPER_ADMIN
 }
 
-enum Gender {
+enum GENDER {
   Male
   Female
   Other
+}
+
+enum BOOKING_STATUS {
+  PENDING
+  CONFIRM
+  CANCELLLED
+}
+
+enum ISSUE_STATUS {
+  PENDING
+  ONGOING
+  FIXED
+  NOT_FIXED
+  CANCELLLED
 }
