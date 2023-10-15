@@ -4,6 +4,7 @@ import { userRoutes } from '../modules/user/user.route';
 import { authRoutes } from '../modules/auth/auth.route';
 import { roleRoutes } from '../modules/role/role.route';
 import { blogRoutes } from '../modules/blog/blog.route';
+import { faqRoutes } from '../modules/faq/faq.route';
 
 const router = express.Router();
 
@@ -23,6 +24,10 @@ const moduleRoutes: any[] = [
   {
     path: '/blogs',
     route: blogRoutes,
+  },
+  {
+    path: '/faqs',
+    route: faqRoutes,
   },
 ];
 
