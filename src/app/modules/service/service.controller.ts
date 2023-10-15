@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { ServiceOfService } from './service.service';
+import pick from '../../../shared/pick';
+import { serviceFilterableFields } from './service.constant';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { ...serviceData } = req.body;
@@ -18,7 +20,9 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await ServiceOfService.getAllFromDB();
+  const filters = pick(req.query, serviceFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await ServiceOfService.getAllFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: 200,
