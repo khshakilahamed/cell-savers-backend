@@ -6,6 +6,8 @@ import { roleRoutes } from '../modules/role/role.route';
 import { blogRoutes } from '../modules/blog/blog.route';
 import { faqRoutes } from '../modules/faq/faq.route';
 import { feedbackRoutes } from '../modules/feedBack/feedBack.route';
+import { timeSlotRoutes } from '../modules/timeSlot/timeSlot.route';
+import { serviceRoutes } from '../modules/service/service.route';
 
 const router = express.Router();
 
@@ -33,6 +35,14 @@ const moduleRoutes: any[] = [
   {
     path: '/feedbacks',
     route: feedbackRoutes,
+  },
+  {
+    path: '/time-slots',
+    route: timeSlotRoutes,
+  },
+  {
+    path: '/services',
+    route: serviceRoutes,
   },
 ];
 
