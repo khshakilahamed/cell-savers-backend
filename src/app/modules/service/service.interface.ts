@@ -1,6 +1,7 @@
 export type IServicePayload = {
   title: string;
   price: number;
+  image: string;
   description: string;
 };
 

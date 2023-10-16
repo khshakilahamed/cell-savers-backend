@@ -8,6 +8,8 @@ import { faqRoutes } from '../modules/faq/faq.route';
 import { feedbackRoutes } from '../modules/feedBack/feedBack.route';
 import { timeSlotRoutes } from '../modules/timeSlot/timeSlot.route';
 import { serviceRoutes } from '../modules/service/service.route';
+import { bookingRoutes } from '../modules/booking/booking.route';
+import { reviewRoutes } from '../modules/review/review.route';
 
 const router = express.Router();
 
@@ -43,6 +45,14 @@ const moduleRoutes: any[] = [
   {
     path: '/services',
     route: serviceRoutes,
+  },
+  {
+    path: '/bookings',
+    route: bookingRoutes,
+  },
+  {
+    path: '/reviews',
+    route: reviewRoutes,
   },
 ];
 

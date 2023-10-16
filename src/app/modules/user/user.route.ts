@@ -14,6 +14,24 @@ router.get(
 );
 
 router.get(
+  '/super-admins',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.getAllSuperAdmins,
+);
+
+router.get(
+  '/admins',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.getAllAdmins,
+);
+
+router.get(
+  '/technicians',
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  UserController.getAllTechnicians,
+);
+
+router.get(
   '/my-profile',
   auth(
     USER_ROLE.CUSTOMER,
@@ -60,6 +78,7 @@ router.post(
 
 router.patch(
   '/update-my-profile',
+  validateRequest(UserValidations.update),
   auth(
     USER_ROLE.CUSTOMER,
     USER_ROLE.TECHNICIAN,
@@ -71,6 +90,7 @@ router.patch(
 
 router.patch(
   '/:id',
+  validateRequest(UserValidations.update),
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.updateUser,
 );

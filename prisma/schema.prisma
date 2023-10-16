@@ -46,6 +46,7 @@ model Customer {
   updatedAt DateTime   @updatedAt
   bookings  Booking[]
   feedBacks FeedBack[]
+  reviews   Review[]
 
   @@map("customers")
 }
@@ -133,6 +134,7 @@ model Service {
   id          String @id @default(uuid())
   title       String @unique
   price       Float
+  image       String @default("null")
   description String
 
   createdAt DateTime  @default(now()) @map("created_At")
@@ -157,7 +159,7 @@ model TimeSlot {
 
 model Booking {
   id               String         @id @default(uuid())
-  bookingDate      DateTime       @map("booking_date")
+  bookingDate      String         @map("booking_date")
   issueDescription String         @map("issue_description")
   bookingStatus    BOOKING_STATUS @default(PENDING)
   issueStatus      ISSUE_STATUS   @default(PENDING)
@@ -185,8 +187,11 @@ model Booking {
 
 model Review {
   id      String @id @default(uuid())
-  rating  Int
+  rating  Float  @default(5)
   comment String
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
 
   bookingId String  @map("booking_id")
   booking   Booking @relation(fields: [bookingId], references: [id])
@@ -219,7 +224,7 @@ enum GENDER {
 enum BOOKING_STATUS {
   PENDING
   CONFIRM
-  CANCELLLED
+  CANCELLED
 }
 
 enum ISSUE_STATUS {
@@ -227,5 +232,5 @@ enum ISSUE_STATUS {
   ONGOING
   FIXED
   NOT_FIXED
-  CANCELLLED
+  CANCELLED
 }

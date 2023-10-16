@@ -53,6 +53,36 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllSuperAdmins = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllSuperAdmins();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Super admins fetched successfully',
+    data: result,
+  });
+});
+
+const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllAdmins();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admins fetched successfully',
+    data: result,
+  });
+});
+
+const getAllTechnicians = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllTechnicians();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Technicians fetched successfully',
+    data: result,
+  });
+});
+
 const getSingleUser = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await UserService.getSingleUser(id);
@@ -121,6 +151,9 @@ export const UserController = {
   createSuperAdmin,
   createTechnician,
   getAllUsers,
+  getAllSuperAdmins,
+  getAllAdmins,
+  getAllTechnicians,
   getSingleUser,
   updateUser,
   deleteUser,

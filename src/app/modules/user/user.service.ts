@@ -94,6 +94,72 @@ const getAllUsers = async (): Promise<Partial<User>[]> => {
   return result;
 };
 
+const getAllSuperAdmins = async () => {
+  const customerAgents = await prisma.customerAgent.findMany({
+    include: {
+      user: {
+        select: {
+          email: true,
+          role: true,
+          roleId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  const result = customerAgents.filter(
+    agent => agent?.user?.role.title === USER_ROLE.SUPER_ADMIN,
+  );
+
+  return result;
+};
+
+const getAllAdmins = async () => {
+  const customerAgents = await prisma.customerAgent.findMany({
+    include: {
+      user: {
+        select: {
+          email: true,
+          role: true,
+          roleId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  const result = customerAgents.filter(
+    agent => agent?.user?.role.title === USER_ROLE.ADMIN,
+  );
+
+  return result;
+};
+
+const getAllTechnicians = async () => {
+  const customerAgents = await prisma.customerAgent.findMany({
+    include: {
+      user: {
+        select: {
+          email: true,
+          role: true,
+          roleId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  const result = customerAgents.filter(
+    agent => agent?.user?.role.title === USER_ROLE.TECHNICIAN,
+  );
+
+  return result;
+};
+
 const getSingleUser = async (id: string): Promise<Partial<User> | null> => {
   const result = await prisma.user.findUnique({
     where: {
@@ -290,7 +356,11 @@ const updateMyProfile = async (
         },
       });
 
-      if (payload.roleId && userRole?.title !== USER_ROLE.CUSTOMER) {
+      if (
+        payload.roleId &&
+        userRole?.title !== USER_ROLE.CUSTOMER &&
+        userRole?.title !== USER_ROLE.TECHNICIAN
+      ) {
         userUpdatedData['roleId'] = payload.roleId;
         delete payload['roleId'];
       }
@@ -331,6 +401,9 @@ export const UserService = {
   createSuperAdmin,
   createTechnician,
   getAllUsers,
+  getAllSuperAdmins,
+  getAllAdmins,
+  getAllTechnicians,
   getSingleUser,
   updateUser,
   deleteUser,

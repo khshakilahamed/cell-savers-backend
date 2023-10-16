@@ -64,6 +64,7 @@ const getAllFromDB = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.service.findMany({
+    include: { reviews: true },
     where: whereConditions,
     skip,
     take: limit,

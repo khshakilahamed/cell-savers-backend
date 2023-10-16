@@ -29,6 +29,22 @@ const createUser = z.object({
   }),
 });
 
+const update = z.object({
+  body: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email().optional(),
+    contactNo: z.string().optional(),
+    // roleId: z.string({ required_error: 'Role id is required' }),
+    gender: z.enum(gender as [string, ...string[]]).optional(),
+    profilePicture: z.string().optional(),
+    emergencyContactNo: z.string().optional(),
+    presentAddress: z.string().optional(),
+    permanentAddress: z.string().optional(),
+  }),
+});
+
 export const UserValidations = {
   createUser,
+  update,
 };
