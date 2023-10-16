@@ -90,6 +90,31 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as any;
+  const result = await UserService.getMyProfile(user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My profile fetched successfully',
+    data: result,
+  });
+});
+
+const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as any;
+  const { ...updatedData } = req.body;
+  const result = await UserService.updateMyProfile(user, updatedData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My profile fetched successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   createCustomer,
   createAdmin,
@@ -99,4 +124,6 @@ export const UserController = {
   getSingleUser,
   updateUser,
   deleteUser,
+  getMyProfile,
+  updateMyProfile,
 };

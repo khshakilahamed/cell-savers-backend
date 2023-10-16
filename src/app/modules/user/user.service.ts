@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { USER_ROLE, User } from '@prisma/client';
+import { Prisma, USER_ROLE, User } from '@prisma/client';
 import prisma from '../../../shared/prisma';
 import { hashPasswordHelpers } from '../../../helpers/hashPasswordHelpers';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 import { UserUtils } from './user.utils';
-import { CreateUserType } from './user.interface';
+import { CreateUserType, IUserAuthPayload } from './user.interface';
 import { selectResponseItem, userSelectOptions } from './user.constant';
 
 const createCustomer = async (
@@ -192,6 +192,139 @@ const deleteUser = async (id: string): Promise<Partial<User> | null> => {
   return result;
 };
 
+const getMyProfile = async (auth: IUserAuthPayload) => {
+  const result = await prisma.$transaction(async transactionClient => {
+    let profileData = {};
+    const isUserExist = await transactionClient.user.findFirst({
+      where: {
+        id: auth.userId,
+        email: auth.email,
+        role: {
+          title: auth.role,
+        },
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (isUserExist?.role.title === USER_ROLE.CUSTOMER) {
+      const customer = await transactionClient.customer.findFirst({
+        where: {
+          userId: isUserExist?.id,
+          email: isUserExist?.email,
+        },
+      });
+
+      profileData = {
+        ...customer,
+        role: isUserExist?.role?.title,
+      };
+    } else {
+      const customer = await transactionClient.customerAgent.findFirst({
+        where: {
+          userId: isUserExist?.id,
+          email: isUserExist?.email,
+        },
+      });
+
+      profileData = {
+        ...customer,
+        role: isUserExist?.role?.title,
+      };
+    }
+
+    return profileData;
+  });
+
+  return result;
+};
+
+const updateMyProfile = async (
+  auth: IUserAuthPayload,
+  payload: Partial<CreateUserType>,
+) => {
+  const result = await prisma.$transaction(async transactionClient => {
+    let profileData = {};
+    const isUserExist = await transactionClient.user.findFirst({
+      where: {
+        id: auth.userId,
+        email: auth.email,
+        role: {
+          title: auth.role,
+        },
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (isUserExist?.role.title === USER_ROLE.CUSTOMER) {
+      if (payload.email) {
+        delete payload['email'];
+      }
+
+      const customerWhereUniqueInput: Prisma.CustomerWhereUniqueInput = {
+        userId: isUserExist.id,
+        email: isUserExist.email,
+      };
+      const customer = await transactionClient.customer.update({
+        where: customerWhereUniqueInput,
+        data: payload,
+      });
+
+      profileData = {
+        ...customer,
+        role: isUserExist?.role?.title,
+      };
+    } else {
+      const userUpdatedData: Partial<User> = {};
+
+      if (payload.email) {
+        userUpdatedData['email'] = payload.email;
+      }
+
+      const userRole = await transactionClient.role.findUnique({
+        where: {
+          id: payload.roleId,
+        },
+      });
+
+      if (payload.roleId && userRole?.title !== USER_ROLE.CUSTOMER) {
+        userUpdatedData['roleId'] = payload.roleId;
+        delete payload['roleId'];
+      }
+
+      const updateUser = await transactionClient.user.update({
+        where: {
+          id: auth.userId,
+        },
+        data: userUpdatedData,
+        include: {
+          role: true,
+        },
+      });
+
+      const updateCustomerAgent = await transactionClient.customerAgent.update({
+        where: {
+          userId: isUserExist?.id,
+          email: isUserExist?.email,
+        },
+        data: payload,
+      });
+
+      profileData = {
+        ...updateCustomerAgent,
+        role: updateUser?.role?.title,
+      };
+    }
+
+    return profileData;
+  });
+
+  return result;
+};
+
 export const UserService = {
   createCustomer,
   createAdmin,
@@ -201,4 +334,6 @@ export const UserService = {
   getSingleUser,
   updateUser,
   deleteUser,
+  getMyProfile,
+  updateMyProfile,
 };

@@ -19,3 +19,9 @@ export type IsUserExistType = User & {
     title: string;
   };
 };
+
+export type IUserAuthPayload = {
+  role: USER_ROLE;
+  email: string;
+  userId: string;
+};

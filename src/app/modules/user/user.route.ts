@@ -9,19 +9,31 @@ const router = express.Router();
 
 router.get(
   '/',
-  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.getAllUsers,
 );
+
+router.get(
+  '/my-profile',
+  auth(
+    USER_ROLE.CUSTOMER,
+    USER_ROLE.TECHNICIAN,
+    USER_ROLE.ADMIN,
+    USER_ROLE.SUPER_ADMIN,
+  ),
+  UserController.getMyProfile,
+);
+
 router.get(
   '/:id',
-  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.getSingleUser,
 );
 
 router.post(
   '/create-customer',
-  // validateRequest(UserValidations.createUser),
-  // auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  validateRequest(UserValidations.createUser),
+  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.createCustomer,
 );
 
@@ -44,6 +56,17 @@ router.post(
   validateRequest(UserValidations.createUser),
   auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
   UserController.createTechnician,
+);
+
+router.patch(
+  '/update-my-profile',
+  auth(
+    USER_ROLE.CUSTOMER,
+    USER_ROLE.TECHNICIAN,
+    USER_ROLE.ADMIN,
+    USER_ROLE.SUPER_ADMIN,
+  ),
+  UserController.updateMyProfile,
 );
 
 router.patch(
