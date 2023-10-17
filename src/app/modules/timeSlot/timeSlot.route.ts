@@ -7,6 +7,7 @@ import { TimeSlotValidation } from './timeSlot.validation';
 const router = express.Router();
 
 router.get('/', TimeSlotController.getFromDB);
+router.get('/available-time-slot', TimeSlotController.availableTimeSlot);
 router.get('/:id', TimeSlotController.getSingleFromDB);
 
 router.post(

@@ -65,10 +65,23 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const availableTimeSlot = catchAsync(async (req: Request, res: Response) => {
+  const { bookingDate } = req.query as any;
+  const result = await TimeSlotService.availableTimeSlot(bookingDate);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Available time slots fetched successfully !',
+    data: result,
+  });
+});
+
 export const TimeSlotController = {
   insertIntoDB,
   getFromDB,
   getSingleFromDB,
   updateIntoDB,
   deleteFromDB,
+  availableTimeSlot,
 };

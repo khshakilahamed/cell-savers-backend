@@ -143,6 +143,46 @@ const deleteFromDB = async (id: string): Promise<Service | null> => {
   return result;
 };
 
+// const getAvailableService = async (payload: {
+//   serviceId?: string | undefined;
+//   slotId?: string | undefined;
+//   customerAgentId?: string | undefined;
+//   bookingDate?: string | undefined;
+// }) => {
+//   const serviceWhereCondition = payload?.serviceId
+//     ? { id: payload.serviceId }
+//     : {};
+
+//   const services = await prisma.service.findMany({
+//     include: {
+//       bookings: {
+//         include: {
+//           customerAgent: true,
+//           slot: true,
+//         },
+//       },
+//     },
+//     where: serviceWhereCondition,
+//   });
+
+//   const bookingsOnGivenDate = await prisma.booking.findMany({
+//     where: payload?.bookingDate ? { bookingDate: payload.bookingDate } : {},
+//   });
+
+//   const timeSlots = await prisma.timeSlot.findMany({});
+
+//   const availableTimeSlotsOnGivenDate = bookingsOnGivenDate.map(
+//     (booking: Booking) => {
+//       return timeSlots.filter((slot: TimeSlot) => slot.id !== booking.slotId);
+//     },
+//   );
+
+//   console.log(availableTimeSlotsOnGivenDate);
+
+//   // const availableService = services.filter(service => )
+//   return bookingsOnGivenDate;
+// };
+
 export const ServiceOfService = {
   insertIntoDB,
   getAllFromDB,

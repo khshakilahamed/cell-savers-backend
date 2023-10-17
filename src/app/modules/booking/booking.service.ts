@@ -22,6 +22,8 @@ const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
     },
   });
 
+  console.log(isCustomerExist);
+
   if (!isCustomerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Customer does not exist');
   }
@@ -31,6 +33,7 @@ const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
   const alreadyHaveBookingToday = await prisma.booking.findFirst({
     where: {
       customerId: payload.customerId,
+      bookingDate: payload.bookingDate,
     },
   });
 

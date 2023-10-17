@@ -3,7 +3,7 @@ import ApiError from '../../../errors/ApiError';
 import { ITimeSlotPayload } from './timeSlot.interface';
 import { timeSlotConflict } from './timeSlot.utils';
 import prisma from '../../../shared/prisma';
-import { TimeSlot } from '@prisma/client';
+import { Booking, TimeSlot } from '@prisma/client';
 
 const insertIntoDB = async (payload: ITimeSlotPayload): Promise<TimeSlot> => {
   const isTimeSlotConflict = await timeSlotConflict(payload);
@@ -75,10 +75,32 @@ const deleteFromDB = async (id: string): Promise<TimeSlot | null> => {
   return result;
 };
 
+const availableTimeSlot = async (payload: { bookingDate: string }) => {
+  const bookingsOnGivenDate = await prisma.booking.findMany({
+    where: {
+      bookingDate: payload?.bookingDate ? payload?.bookingDate : '',
+    },
+  });
+
+  const timeSlots = await prisma.timeSlot.findMany({});
+
+  const availableTimeSlotsOnGivenDate =
+    bookingsOnGivenDate.length > 0
+      ? bookingsOnGivenDate.map((booking: Booking) => {
+          return timeSlots.filter(
+            (slot: TimeSlot) => slot.id !== booking.slotId,
+          );
+        })
+      : timeSlots;
+
+  return availableTimeSlotsOnGivenDate;
+};
+
 export const TimeSlotService = {
   insertIntoDB,
   getFromDB,
   getSingleFromDB,
   updateIntoDB,
   deleteFromDB,
+  availableTimeSlot,
 };

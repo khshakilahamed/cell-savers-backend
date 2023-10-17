@@ -13,6 +13,8 @@ export const bookingFilterableFields = [
   'customerAgentId',
   'slotId',
   'serviceId',
+  'bookingStatus',
+  'issueStatus',
 ];
 
 export const bookingRelationalFields = [
@@ -31,17 +33,5 @@ export const bookingRelationalFieldsMapper: {
   serviceId: 'service',
 };
 
-// BOOKING_STATUS---
-//   PENDING
-//   CONFIRM
-//   CANCELLED
-
 export const bookingStatus = [...Object.keys(BOOKING_STATUS)];
 export const issueStatus = [...Object.keys(ISSUE_STATUS)];
-
-// enum ISSUE_STATUS---
-//   PENDING
-//   ONGOING
-//   FIXED
-//   NOT_FIXED
-//   CANCELLED

@@ -10,6 +10,8 @@ import { timeSlotRoutes } from '../modules/timeSlot/timeSlot.route';
 import { serviceRoutes } from '../modules/service/service.route';
 import { bookingRoutes } from '../modules/booking/booking.route';
 import { reviewRoutes } from '../modules/review/review.route';
+import { customerRoutes } from '../modules/customer/customer.route';
+import { customerAgentRoutes } from '../modules/customerAgent/customerAgent.route';
 
 const router = express.Router();
 
@@ -17,6 +19,14 @@ const moduleRoutes: any[] = [
   {
     path: '/users',
     route: userRoutes,
+  },
+  {
+    path: '/customers',
+    route: customerRoutes,
+  },
+  {
+    path: '/customer-agents',
+    route: customerAgentRoutes,
   },
   {
     path: '/auth',

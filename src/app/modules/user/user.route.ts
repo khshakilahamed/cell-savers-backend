@@ -65,7 +65,7 @@ router.post(
 router.post(
   '/create-super-admin',
   validateRequest(UserValidations.createUser),
-  auth(USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.SUPER_ADMIN, USER_ROLE.ADMIN),
   UserController.createSuperAdmin,
 );
 

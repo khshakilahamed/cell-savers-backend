@@ -160,6 +160,24 @@ const getAllTechnicians = async () => {
   return result;
 };
 
+const getAllCustomers = async () => {
+  const result = await prisma.customer.findMany({
+    include: {
+      user: {
+        select: {
+          email: true,
+          role: true,
+          roleId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
 const getSingleUser = async (id: string): Promise<Partial<User> | null> => {
   const result = await prisma.user.findUnique({
     where: {
@@ -404,6 +422,7 @@ export const UserService = {
   getAllSuperAdmins,
   getAllAdmins,
   getAllTechnicians,
+  getAllCustomers,
   getSingleUser,
   updateUser,
   deleteUser,
