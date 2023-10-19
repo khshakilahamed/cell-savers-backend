@@ -188,6 +188,8 @@ const changePassword = async (
   });
 
   //   console.log(isPasswordMatched);
+
+  return 'Password Changed';
 };
 
 export const AuthService = {

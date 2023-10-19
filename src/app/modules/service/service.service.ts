@@ -64,7 +64,13 @@ const getAllFromDB = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.service.findMany({
-    include: { reviews: true },
+    include: {
+      reviews: {
+        include: {
+          customer: true,
+        },
+      },
+    },
     where: whereConditions,
     skip,
     take: limit,
@@ -87,6 +93,13 @@ const getAllFromDB = async (
 
 const getSingleFromDB = async (id: string): Promise<Service | null> => {
   const result = await prisma.service.findUnique({
+    include: {
+      reviews: {
+        include: {
+          customer: true,
+        },
+      },
+    },
     where: {
       id,
     },
