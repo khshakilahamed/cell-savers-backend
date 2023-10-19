@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { FaqService } from './faq.service';
+import pick from '../../../shared/pick';
+import { faqFilterableFields } from './faq.constant';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.user as any;
@@ -19,13 +21,17 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await FaqService.getFromDB();
+  const filters = pick(req.query, faqFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+
+  const result = await FaqService.getFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'FAQs fetched successfully!',
-    data: result,
+    data: result?.data,
+    meta: result?.meta,
   });
 });
 

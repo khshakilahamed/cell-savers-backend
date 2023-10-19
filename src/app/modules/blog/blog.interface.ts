@@ -3,3 +3,8 @@ export type IBlogPayload = {
   image?: string | null;
   description: string;
 };
+
+export type IBlogFilterRequest = {
+  searchTerm?: string | undefined;
+  id?: string | undefined;
+};

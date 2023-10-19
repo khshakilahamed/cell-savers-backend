@@ -73,6 +73,9 @@ const getFromDB = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.blog.findMany({
+    include: {
+      customerAgent: true,
+    },
     where: whereConditions,
     skip,
     take: limit,
