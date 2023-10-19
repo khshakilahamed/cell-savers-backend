@@ -3,7 +3,7 @@ import { paginationHelpers } from '../../../helpers/paginationHelpers';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { Customer, Prisma } from '@prisma/client';
+import { Customer, Prisma, USER_ROLE } from '@prisma/client';
 import { ICustomerFilterRequest, ICustomerPayload } from './customer.interface';
 import {
   customerSearchableFields,
@@ -11,6 +11,50 @@ import {
 } from './customer.constant';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
+import { CreateUserType } from '../user/user.interface';
+import { UserUtils } from '../user/user.utils';
+import { hashPasswordHelpers } from '../../../helpers/hashPasswordHelpers';
+import { userSelectOptions } from '../user/user.constant';
+
+const createCustomer = async (payload: CreateUserType): Promise<Customer> => {
+  const { password, ...othersData } = payload;
+
+  const isExistUser = await UserUtils.isExistUser(payload.email);
+
+  if (isExistUser) {
+    throw new ApiError(httpStatus.CONFLICT, 'User already exist');
+  }
+
+  const hashedPassword = await hashPasswordHelpers.hashPassword(password);
+
+  const userRole = await UserUtils.userRole(USER_ROLE.customer);
+
+  if (!userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role does not found');
+  }
+
+  const userData = {
+    email: payload.email,
+    roleId: userRole.id,
+    password: hashedPassword,
+  };
+
+  const result = await prisma.$transaction(async transactionClient => {
+    const user = await transactionClient.user.create({
+      data: userData,
+      select: { ...userSelectOptions },
+    });
+
+    const data = { ...othersData, userId: user.id };
+    const customer = await transactionClient.customer.create({ data });
+
+    return {
+      ...customer,
+    };
+  });
+
+  return result;
+};
 
 const getFromDB = async (
   filters: ICustomerFilterRequest,
@@ -155,6 +199,7 @@ const deleteFromDB = async (id: string): Promise<Customer | null> => {
 };
 
 export const CustomerService = {
+  createCustomer,
   getFromDB,
   getSingleFromDB,
   updateIntoDB,

@@ -5,6 +5,17 @@ import sendResponse from '../../../shared/sendResponse';
 import { CustomerService } from './customer.service';
 import pick from '../../../shared/pick';
 import { customerFilterableFields } from './customer.constant';
+import httpStatus from 'http-status';
+
+const createCustomer = catchAsync(async (req: Request, res: Response) => {
+  const result = await CustomerService.createCustomer(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer created successfully',
+    data: result,
+  });
+});
 
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, customerFilterableFields);
@@ -16,7 +27,8 @@ const getFromDB = catchAsync(async (req: Request, res: Response) => {
     statusCode: 200,
     success: true,
     message: 'Customers fetched successfully!',
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 
@@ -62,6 +74,7 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const CustomerController = {
+  createCustomer,
   getFromDB,
   getSingleFromDB,
   updateIntoDB,

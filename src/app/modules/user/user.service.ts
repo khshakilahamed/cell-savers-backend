@@ -21,11 +21,15 @@ const createCustomer = async (
 
   const hashedPassword = await hashPasswordHelpers.hashPassword(password);
 
-  const userRole = await UserUtils.userRole(USER_ROLE.CUSTOMER);
+  const userRole = await UserUtils.userRole(USER_ROLE.customer);
+
+  if (!userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role does not found');
+  }
 
   const userData = {
     email: payload.email,
-    roleId: userRole?.id || 'ef2aca77-bd59-434b-ac43-bb515be8e395',
+    roleId: userRole.id,
     password: hashedPassword,
   };
 
@@ -47,11 +51,13 @@ const createCustomer = async (
 };
 
 const createAdmin = async (payload: CreateUserType): Promise<Partial<User>> => {
-  const userRole = await UserUtils.userRole(USER_ROLE.ADMIN);
+  const userRole = await UserUtils.userRole(USER_ROLE.admin);
 
-  payload['roleId'] = userRole
-    ? userRole?.id
-    : 'a0b67827-c7a3-4dfb-b39f-28fc05592f59';
+  if (!userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role does not found');
+  }
+
+  payload['roleId'] = userRole!.id;
 
   const result = await UserUtils.createAgent(payload);
 
@@ -61,11 +67,13 @@ const createAdmin = async (payload: CreateUserType): Promise<Partial<User>> => {
 const createSuperAdmin = async (
   payload: CreateUserType,
 ): Promise<Partial<User>> => {
-  const userRole = await UserUtils.userRole(USER_ROLE.SUPER_ADMIN);
+  const userRole = await UserUtils.userRole(USER_ROLE.super_admin);
 
-  payload['roleId'] = userRole
-    ? userRole?.id
-    : '0df2893f-a74e-4b20-9fb6-62ec419c59b4';
+  if (!userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role does not found');
+  }
+
+  payload['roleId'] = userRole!.id;
 
   const result = await UserUtils.createAgent(payload);
 
@@ -75,11 +83,13 @@ const createSuperAdmin = async (
 const createTechnician = async (
   payload: CreateUserType,
 ): Promise<Partial<User>> => {
-  const userRole = await UserUtils.userRole(USER_ROLE.TECHNICIAN);
+  const userRole = await UserUtils.userRole(USER_ROLE.technician);
 
-  payload['roleId'] = userRole
-    ? userRole?.id
-    : '45cc3d91-7c46-41aa-a987-beafde47bf76';
+  if (!userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role does not found');
+  }
+
+  payload['roleId'] = userRole!.id;
 
   const result = await UserUtils.createAgent(payload);
 
@@ -110,7 +120,7 @@ const getAllSuperAdmins = async () => {
   });
 
   const result = customerAgents.filter(
-    agent => agent?.user?.role.title === USER_ROLE.SUPER_ADMIN,
+    agent => agent?.user?.role.title === USER_ROLE.super_admin,
   );
 
   return result;
@@ -132,7 +142,7 @@ const getAllAdmins = async () => {
   });
 
   const result = customerAgents.filter(
-    agent => agent?.user?.role.title === USER_ROLE.ADMIN,
+    agent => agent?.user?.role.title === USER_ROLE.admin,
   );
 
   return result;
@@ -154,7 +164,7 @@ const getAllTechnicians = async () => {
   });
 
   const result = customerAgents.filter(
-    agent => agent?.user?.role.title === USER_ROLE.TECHNICIAN,
+    agent => agent?.user?.role.title === USER_ROLE.technician,
   );
 
   return result;
@@ -205,7 +215,7 @@ const updateUser = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'User Not found');
   }
 
-  if (isExistUser.role.title === USER_ROLE.CUSTOMER) {
+  if (isExistUser.role.title === USER_ROLE.customer) {
     throw new ApiError(
       httpStatus.CONFLICT,
       'Customer Role could not be changeable',
@@ -240,7 +250,7 @@ const deleteUser = async (id: string): Promise<Partial<User> | null> => {
   }
 
   const result = await prisma.$transaction(async transactionClient => {
-    if (isExistUser.role.title === USER_ROLE.CUSTOMER) {
+    if (isExistUser.role.title === USER_ROLE.customer) {
       await transactionClient.customer.delete({
         where: {
           email: isExistUser.email,
@@ -277,51 +287,48 @@ const deleteUser = async (id: string): Promise<Partial<User> | null> => {
 };
 
 const getMyProfile = async (auth: IUserAuthPayload) => {
-  const result = await prisma.$transaction(async transactionClient => {
-    let profileData = {};
-    const isUserExist = await transactionClient.user.findFirst({
-      where: {
-        id: auth.userId,
-        email: auth.email,
-        role: {
-          title: auth.role,
-        },
+  const isUserExist = await prisma.user.findFirst({
+    where: {
+      id: auth.userId,
+      email: auth.email,
+      role: {
+        title: auth.role,
       },
-      include: {
-        role: true,
+    },
+    include: {
+      role: true,
+    },
+  });
+
+  let profileData = {};
+
+  if (isUserExist?.role.title === USER_ROLE.customer) {
+    const customer = await prisma.customer.findFirst({
+      where: {
+        userId: isUserExist?.id,
+        email: isUserExist?.email,
       },
     });
 
-    if (isUserExist?.role.title === USER_ROLE.CUSTOMER) {
-      const customer = await transactionClient.customer.findFirst({
-        where: {
-          userId: isUserExist?.id,
-          email: isUserExist?.email,
-        },
-      });
+    profileData = {
+      ...customer,
+      role: isUserExist?.role?.title,
+    };
+  } else {
+    const customer = await prisma.customerAgent.findFirst({
+      where: {
+        userId: isUserExist?.id,
+        email: isUserExist?.email,
+      },
+    });
 
-      profileData = {
-        ...customer,
-        role: isUserExist?.role?.title,
-      };
-    } else {
-      const customer = await transactionClient.customerAgent.findFirst({
-        where: {
-          userId: isUserExist?.id,
-          email: isUserExist?.email,
-        },
-      });
+    profileData = {
+      ...customer,
+      role: isUserExist?.role?.title,
+    };
+  }
 
-      profileData = {
-        ...customer,
-        role: isUserExist?.role?.title,
-      };
-    }
-
-    return profileData;
-  });
-
-  return result;
+  return profileData;
 };
 
 const updateMyProfile = async (
@@ -343,7 +350,7 @@ const updateMyProfile = async (
       },
     });
 
-    if (isUserExist?.role.title === USER_ROLE.CUSTOMER) {
+    if (isUserExist?.role.title === USER_ROLE.customer) {
       if (payload.email) {
         delete payload['email'];
       }
@@ -376,8 +383,8 @@ const updateMyProfile = async (
 
       if (
         payload.roleId &&
-        userRole?.title !== USER_ROLE.CUSTOMER &&
-        userRole?.title !== USER_ROLE.TECHNICIAN
+        userRole?.title !== USER_ROLE.customer &&
+        userRole?.title !== USER_ROLE.technician
       ) {
         userUpdatedData['roleId'] = payload.roleId;
         delete payload['roleId'];

@@ -8,33 +8,33 @@ const router = express.Router();
 
 router.get(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ReviewController.getSingleFromDB,
 );
 
 router.get(
   '/',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ReviewController.getFromDB,
 );
 
 router.post(
   '/',
   validateRequest(ReviewValidation.create),
-  auth(USER_ROLE.CUSTOMER),
+  auth(USER_ROLE.customer),
   ReviewController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(ReviewValidation.update),
-  auth(USER_ROLE.CUSTOMER),
+  auth(USER_ROLE.customer),
   ReviewController.updateIntoDB,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ReviewController.deleteFromDB,
 );
 

@@ -1,5 +1,5 @@
 import prisma from '../../../shared/prisma';
-import { ITimeSlotPayload } from './service.interface';
+import { ITimeSlotPayload } from '../timeSlot/timeSlot.interface';
 
 export const timeSlotConflict = async (
   payload: ITimeSlotPayload,

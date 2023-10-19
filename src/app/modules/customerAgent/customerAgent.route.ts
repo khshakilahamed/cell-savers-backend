@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get(
   '/',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   CustomerAgentController.getFromDB,
 );
 
@@ -20,20 +20,20 @@ router.get(
 
 router.get(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   CustomerAgentController.getSingleFromDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(CustomerAgentValidation.update),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   CustomerAgentController.updateIntoDB,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   CustomerAgentController.deleteFromDB,
 );
 

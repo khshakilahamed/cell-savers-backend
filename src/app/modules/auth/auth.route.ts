@@ -30,10 +30,10 @@ router.post(
   '/change-password',
   validateRequest(AuthValidation.changePassword),
   auth(
-    USER_ROLE.ADMIN,
-    USER_ROLE.SUPER_ADMIN,
-    USER_ROLE.TECHNICIAN,
-    USER_ROLE.CUSTOMER,
+    USER_ROLE.admin,
+    USER_ROLE.super_admin,
+    USER_ROLE.technician,
+    USER_ROLE.customer,
   ),
   AuthController.changePassword,
 );

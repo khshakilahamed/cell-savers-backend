@@ -11,16 +11,16 @@ router.get('/:id', BlogController.getSingleFromDB);
 router.post(
   '/',
   validateRequest(BlogValidation.create),
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.admin),
   BlogController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(BlogValidation.update),
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.admin),
   BlogController.updateIntoDB,
 );
-router.delete('/:id', auth(USER_ROLE.ADMIN), BlogController.deleteFromDB);
+router.delete('/:id', auth(USER_ROLE.admin), BlogController.deleteFromDB);
 
 export const blogRoutes = router;

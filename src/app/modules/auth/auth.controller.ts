@@ -9,7 +9,7 @@ import { IRefreshTokenResponse } from './auth.interface';
 const customerRegister = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.customerRegister(req.body);
 
-  const { refreshToken } = result;
+  const { refreshToken, accessToken } = result;
 
   const cookieOptions = {
     secure: config.env === 'production',
@@ -22,14 +22,14 @@ const customerRegister = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User registered successfully',
-    data: result,
+    data: { accessToken },
   });
 });
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.loginUser(req.body);
 
-  const { refreshToken } = result;
+  const { refreshToken, accessToken } = result;
 
   const cookieOptions = {
     secure: config.env === 'production',
@@ -42,7 +42,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User logged in successfully',
-    data: result,
+    data: { accessToken },
   });
 });
 

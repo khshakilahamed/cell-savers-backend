@@ -28,11 +28,15 @@ const customerRegister = async (
 
   const hashedPassword = await hashPasswordHelpers.hashPassword(password);
 
-  const userRole = await UserUtils.userRole(USER_ROLE.CUSTOMER);
+  const userRole = await UserUtils.userRole(USER_ROLE.customer);
+
+  if (userRole) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User role not found');
+  }
 
   const userData = {
     email: payload.email,
-    roleId: userRole?.id || 'ef2aca77-bd59-434b-ac43-bb515be8e395',
+    roleId: userRole!.id,
     password: hashedPassword,
   };
 

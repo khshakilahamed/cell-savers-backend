@@ -12,20 +12,20 @@ router.get('/:id', ServiceController.getSingleFromDB);
 router.post(
   '/',
   validateRequest(ServiceValidation.create),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ServiceController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(ServiceValidation.update),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ServiceController.updateIntoDB,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   ServiceController.deleteFromDB,
 );
 

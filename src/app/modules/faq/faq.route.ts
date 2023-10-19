@@ -11,16 +11,16 @@ router.get('/:id', FaqController.getSingleFromDB);
 router.post(
   '/',
   validateRequest(FAQValidation.create),
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.admin),
   FaqController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(FAQValidation.update),
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.admin),
   FaqController.updateIntoDB,
 );
-router.delete('/:id', auth(USER_ROLE.ADMIN), FaqController.deleteFromDB);
+router.delete('/:id', auth(USER_ROLE.admin), FaqController.deleteFromDB);
 
 export const faqRoutes = router;

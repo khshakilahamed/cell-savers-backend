@@ -209,10 +209,10 @@ model Review {
 }
 
 enum USER_ROLE {
-  CUSTOMER
-  TECHNICIAN
-  ADMIN
-  SUPER_ADMIN
+  customer
+  technician
+  admin
+  super_admin
 }
 
 enum GENDER {

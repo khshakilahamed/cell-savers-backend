@@ -86,37 +86,6 @@ const getAllFromDB = async (
     });
   }
 
-  //   if (searchTerm) {
-  //       andConditions.push({
-  //         OR: [
-  //           ...bookingSearchableFields.map(field => ({
-  //             [field]: {
-  //               contains: searchTerm,
-  //               mode: 'insensitive',
-  //             },
-  //           })),
-  //           {
-  //             customer: {
-  //               OR: [
-  //                 {
-  //                   firstName: {
-  //                     contains: searchTerm,
-  //                     mode: 'insensitive',
-  //                   },
-  //                 },
-  //                 {
-  //                   lastName: {
-  //                     contains: searchTerm,
-  //                     mode: 'insensitive',
-  //                   },
-  //                 },
-  //               ],
-  //             },
-  //           },
-  //         ],
-  //       });
-  //     }
-
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
       AND: Object.keys(filterData).map(key => {

@@ -177,7 +177,7 @@ const deleteFromDB = async (id: string): Promise<CustomerAgent | null> => {
 
     await transactionClient.user.delete({
       where: {
-        id: deletedCustomerAgent.userId,
+        id: deletedCustomerAgent?.userId,
       },
     });
 
@@ -199,7 +199,7 @@ const getAvailableTechnician = async (payload: {
 
   const technician = await prisma.role.findFirst({
     where: {
-      title: USER_ROLE.TECHNICIAN,
+      title: USER_ROLE.technician,
     },
   });
 
@@ -210,22 +210,6 @@ const getAvailableTechnician = async (payload: {
       },
     },
   });
-  //   (technician: CustomerAgent) => {
-  //     let exist = 0;
-  //     for (const booking of bookingsOnGivenDate) {
-  //       if (
-  //         booking.customerAgentId === technician.id &&
-  //         payload?.timeSlot === booking.slotId
-  //       ) {
-  //         exist += 1;
-  //       }
-  //     }
-
-  //     if (exist === 0) {
-  //       return technician;
-  //     }
-  //   },
-  // );
 
   const availableTechnicianOnGivenDate = technicians.filter(
     (technician: CustomerAgent) => {

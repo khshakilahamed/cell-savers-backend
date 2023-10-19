@@ -13,20 +13,20 @@ router.get('/:id', TimeSlotController.getSingleFromDB);
 router.post(
   '/',
   validateRequest(TimeSlotValidation.create),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   TimeSlotController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(TimeSlotValidation.update),
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   TimeSlotController.updateIntoDB,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
   TimeSlotController.deleteFromDB,
 );
 
