@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { BlogService } from './blog.service';
+import pick from '../../../shared/pick';
+import { blogFilterableFields } from './blog.constant';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.user as any;
@@ -19,13 +21,16 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await BlogService.getFromDB();
+  const filters = pick(req.query, blogFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await BlogService.getFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Blogs fetched successfully!',
-    data: result,
+    data: result?.data,
+    meta: result?.meta,
   });
 });
 
