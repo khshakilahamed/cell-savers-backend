@@ -218,10 +218,37 @@ const deleteFromDB = async (id: string) => {
   return result;
 };
 
+const customerMyBookings = async (payload: IUserAuthPayload) => {
+  const customer = await prisma.customer.findFirst({
+    where: {
+      userId: payload.userId,
+      email: payload.email,
+    },
+  });
+
+  if (!customer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Customer does not found');
+  }
+
+  const result = await prisma.booking.findMany({
+    include: {
+      service: true,
+      slot: true,
+      customerAgent: true,
+    },
+    where: {
+      customerId: customer?.id,
+    },
+  });
+
+  return result;
+};
+
 export const BookingService = {
   insertIntoDB,
   getAllFromDB,
   getSingleFromDB,
   updateIntoDB,
   deleteFromDB,
+  customerMyBookings,
 };

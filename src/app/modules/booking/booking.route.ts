@@ -13,6 +13,12 @@ router.get(
 );
 
 router.get(
+  '/customer-my-bookings',
+  auth(USER_ROLE.customer, USER_ROLE.technician),
+  BookingController.customerMyBookings,
+);
+
+router.get(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.super_admin),
   BookingController.getSingleFromDB,
@@ -34,7 +40,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.super_admin),
+  auth(USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.super_admin),
   BookingController.deleteFromDB,
 );
 

@@ -6,7 +6,9 @@ const create = z.object({
     bookingDate: z.string({
       required_error: 'Booking Date is required',
     }),
-    issueDescription: z.string().optional(),
+    issueDescription: z.string({
+      required_error: 'Description is required',
+    }),
     slotId: z.string({
       required_error: 'Slot is required',
     }),
