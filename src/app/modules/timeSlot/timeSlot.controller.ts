@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { TimeSlotService } from './timeSlot.service';
+import pick from '../../../shared/pick';
+import { timeSlotFilterableFields } from './timeSlot.constant';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { ...timeSlotData } = req.body;
@@ -18,13 +20,16 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await TimeSlotService.getFromDB();
+  const filters = pick(req.query, timeSlotFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await TimeSlotService.getFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Time slots fetched successfully !',
-    data: result,
+    data: result?.data,
+    meta: result?.meta,
   });
 });
 

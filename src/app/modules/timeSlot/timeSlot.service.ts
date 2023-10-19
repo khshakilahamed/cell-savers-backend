@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
-import { ITimeSlotPayload } from './timeSlot.interface';
+import { ITimeSlotFilterRequest, ITimeSlotPayload } from './timeSlot.interface';
 import { timeSlotConflict } from './timeSlot.utils';
 import prisma from '../../../shared/prisma';
-import { Booking, TimeSlot } from '@prisma/client';
+import { Booking, Prisma, TimeSlot } from '@prisma/client';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { paginationHelpers } from '../../../helpers/paginationHelpers';
+import { timeSlotSearchableFields } from './timeSlot.constant';
+import { IGenericResponse } from '../../../interfaces/common';
 
 const insertIntoDB = async (payload: ITimeSlotPayload): Promise<TimeSlot> => {
   const isTimeSlotConflict = await timeSlotConflict(payload);
@@ -19,10 +24,59 @@ const insertIntoDB = async (payload: ITimeSlotPayload): Promise<TimeSlot> => {
   return result;
 };
 
-const getFromDB = async (): Promise<TimeSlot[]> => {
-  const result = await prisma.timeSlot.findMany();
+const getFromDB = async (
+  filters: ITimeSlotFilterRequest,
+  options: IPaginationOptions,
+): Promise<IGenericResponse<TimeSlot[]>> => {
+  const { limit, page, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(options);
+  const { searchTerm, ...filterData } = filters;
 
-  return result;
+  const andConditions = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: timeSlotSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map(key => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.TimeSlotWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.timeSlot.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const total = await prisma.timeSlot.count({ where: whereConditions });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
 };
 
 const getSingleFromDB = async (id: string): Promise<TimeSlot | null> => {
