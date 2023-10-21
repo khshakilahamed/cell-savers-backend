@@ -140,7 +140,7 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'My profile fetched successfully',
+    message: 'Profile updated successfully',
     data: result,
   });
 });

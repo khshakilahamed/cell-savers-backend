@@ -335,61 +335,67 @@ const updateMyProfile = async (
   auth: IUserAuthPayload,
   payload: Partial<CreateUserType>,
 ) => {
-  const result = await prisma.$transaction(async transactionClient => {
-    let profileData = {};
-    const isUserExist = await transactionClient.user.findFirst({
-      where: {
-        id: auth.userId,
-        email: auth.email,
-        role: {
-          title: auth.role,
-        },
+  const isUserExist = await prisma.user.findFirst({
+    where: {
+      id: auth.userId,
+      email: auth.email,
+      role: {
+        title: auth.role,
       },
-      include: {
-        role: true,
-      },
+    },
+    include: {
+      role: true,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+  }
+
+  let profileData = {};
+
+  if (isUserExist?.role.title === USER_ROLE.customer) {
+    if (payload.email) {
+      delete payload['email'];
+    }
+
+    const customerWhereUniqueInput: Prisma.CustomerWhereUniqueInput = {
+      userId: isUserExist.id,
+      email: isUserExist.email,
+    };
+
+    const customer = await prisma.customer.update({
+      where: customerWhereUniqueInput,
+      data: payload,
     });
 
-    if (isUserExist?.role.title === USER_ROLE.customer) {
-      if (payload.email) {
-        delete payload['email'];
-      }
+    profileData = {
+      ...customer,
+      role: isUserExist?.role?.title,
+    };
+    return profileData;
+  } else {
+    const userUpdatedData: Partial<User> = {};
 
-      const customerWhereUniqueInput: Prisma.CustomerWhereUniqueInput = {
-        userId: isUserExist.id,
-        email: isUserExist.email,
-      };
-      const customer = await transactionClient.customer.update({
-        where: customerWhereUniqueInput,
-        data: payload,
-      });
+    if (payload.email) {
+      userUpdatedData['email'] = payload.email;
+    }
+    if (payload.roleId) {
+      delete payload['roleId'];
+    }
 
-      profileData = {
-        ...customer,
-        role: isUserExist?.role?.title,
-      };
-    } else {
-      const userUpdatedData: Partial<User> = {};
-
-      if (payload.email) {
-        userUpdatedData['email'] = payload.email;
-      }
-
-      const userRole = await transactionClient.role.findUnique({
+    if (payload?.email && payload?.email !== isUserExist.email) {
+      const isEmailAlreadyExist = await prisma.user.findFirst({
         where: {
-          id: payload.roleId,
+          email: payload.email,
         },
       });
-
-      if (
-        payload.roleId &&
-        userRole?.title !== USER_ROLE.customer &&
-        userRole?.title !== USER_ROLE.technician
-      ) {
-        userUpdatedData['roleId'] = payload.roleId;
-        delete payload['roleId'];
+      if (isEmailAlreadyExist) {
+        throw new ApiError(httpStatus.CONFLICT, 'This email already exist');
       }
+    }
 
+    await prisma.$transaction(async transactionClient => {
       const updateUser = await transactionClient.user.update({
         where: {
           id: auth.userId,
@@ -412,12 +418,10 @@ const updateMyProfile = async (
         ...updateCustomerAgent,
         role: updateUser?.role?.title,
       };
-    }
+    });
 
     return profileData;
-  });
-
-  return result;
+  }
 };
 
 export const UserService = {
