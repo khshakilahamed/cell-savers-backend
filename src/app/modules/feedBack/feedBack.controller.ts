@@ -3,12 +3,14 @@ import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { FeedbackService } from './feedBack.service';
+import { feedbackFilterableFields } from './feedBack.constant';
+import pick from '../../../shared/pick';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.user as any;
-  const { ...blogData } = req.body;
+  const { ...feedbackData } = req.body;
 
-  const result = await FeedbackService.insertIntoDB(userId, blogData);
+  const result = await FeedbackService.insertIntoDB(userId, feedbackData);
 
   sendResponse(res, {
     statusCode: 200,
@@ -19,13 +21,16 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await FeedbackService.getFromDB();
+  const filters = pick(req.query, feedbackFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await FeedbackService.getFromDB(filters, options);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: 'Feedbacks fetched successfully!',
-    data: result,
+    data: result?.data,
+    meta: result?.meta,
   });
 });
 
@@ -66,10 +71,23 @@ const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const selectFromDB = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await FeedbackService.selectFromDB(id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Feedback selected successfully!',
+    data: result,
+  });
+});
+
 export const FeedbackController = {
   insertIntoDB,
   getFromDB,
   getSingleFromDB,
   updateIntoDB,
   deleteFromDB,
+  selectFromDB,
 };

@@ -30,7 +30,7 @@ const customerRegister = async (
 
   const userRole = await UserUtils.userRole(USER_ROLE.customer);
 
-  if (userRole) {
+  if (!userRole) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User role not found');
   }
 

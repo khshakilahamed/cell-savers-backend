@@ -29,6 +29,13 @@ router.patch(
   auth(USER_ROLE.admin, USER_ROLE.super_admin),
   FeedbackController.updateIntoDB,
 );
+
+router.patch(
+  '/select-feedback/:id',
+  validateRequest(FeedbackValidation.update),
+  auth(USER_ROLE.admin, USER_ROLE.super_admin),
+  FeedbackController.selectFromDB,
+);
 router.delete(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.super_admin),

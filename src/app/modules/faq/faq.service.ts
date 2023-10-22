@@ -7,7 +7,7 @@ import { IFAQPayload, IFaqFilterRequest } from './faq.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelpers';
-import { faqFilterableFields } from './faq.constant';
+import { faqSearchableFields } from './faq.constant';
 
 const insertIntoDB = async (
   userId: string,
@@ -50,7 +50,7 @@ const getFromDB = async (
 
   if (searchTerm) {
     andConditions.push({
-      OR: faqFilterableFields.map(field => ({
+      OR: faqSearchableFields.map(field => ({
         [field]: {
           contains: searchTerm,
           mode: 'insensitive',

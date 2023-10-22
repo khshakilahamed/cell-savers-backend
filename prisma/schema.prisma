@@ -32,7 +32,7 @@ model Customer {
   firstName          String  @map("first_name")
   lastName           String  @map("last_name")
   email              String  @unique
-  profilePicture     String? @map("profile_picture")
+  profilePicture     String? @default("null") @map("profile_picture")
   gender             GENDER?
   contactNo          String  @unique @map("contact_no")
   emergencyContactNo String? @map("emergency_contact_no")
@@ -118,8 +118,9 @@ model FAQ {
 }
 
 model FeedBack {
-  id      String @id @default(uuid())
-  comment String
+  id         String  @id @default(uuid())
+  comment    String
+  isSelected Boolean @default(false)
 
   customerId String   @map("customer_id")
   customer   Customer @relation(fields: [customerId], references: [id])
