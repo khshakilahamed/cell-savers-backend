@@ -46,6 +46,10 @@ const getFromDB = async (
     paginationHelpers.calculatePagination(options);
   const { searchTerm, ...filterData } = filters;
 
+  if (filterData.isSelected === 'true') {
+    filterData.isSelected = true;
+  }
+
   const andConditions = [];
 
   if (searchTerm) {

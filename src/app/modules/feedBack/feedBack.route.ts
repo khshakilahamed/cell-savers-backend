@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get(
   '/',
-  auth(USER_ROLE.admin, USER_ROLE.super_admin, USER_ROLE.technician),
+  // auth(USER_ROLE.admin, USER_ROLE.super_admin, USER_ROLE.technician),
   FeedbackController.getFromDB,
 );
 router.get(

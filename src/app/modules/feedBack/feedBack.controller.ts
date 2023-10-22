@@ -23,6 +23,7 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
 const getFromDB = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, feedbackFilterableFields);
   const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+
   const result = await FeedbackService.getFromDB(filters, options);
 
   sendResponse(res, {

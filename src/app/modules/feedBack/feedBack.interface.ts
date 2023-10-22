@@ -5,4 +5,5 @@ export type IFeedBackPayload = {
 export type IFeedbackFilterRequest = {
   searchTerm?: string | undefined;
   id?: string | undefined;
+  isSelected?: boolean | string | undefined;
 };

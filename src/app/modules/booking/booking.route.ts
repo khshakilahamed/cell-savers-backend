@@ -38,6 +38,18 @@ router.patch(
   BookingController.updateIntoDB,
 );
 
+router.patch(
+  '/confirm-booking/:id',
+  auth(USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.super_admin),
+  BookingController.confirmBooking,
+);
+
+router.patch(
+  '/cancel-booking/:id',
+  auth(USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.super_admin),
+  BookingController.cancelBooking,
+);
+
 router.delete(
   '/:id',
   auth(USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.super_admin),

@@ -29,7 +29,8 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Bookings fetched successfully',
-    data: result,
+    data: result?.data,
+    meta: result?.meta,
   });
 });
 
@@ -82,6 +83,30 @@ const customerMyBookings = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const confirmBooking = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await BookingService.confirmBooking(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Booking confirmed successfully',
+    data: result,
+  });
+});
+
+const cancelBooking = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await BookingService.cancelBooking(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Booking confirmed successfully',
+    data: result,
+  });
+});
+
 export const BookingController = {
   insertIntoDB,
   getAllFromDB,
@@ -89,4 +114,6 @@ export const BookingController = {
   updateIntoDB,
   deleteFromDB,
   customerMyBookings,
+  confirmBooking,
+  cancelBooking,
 };

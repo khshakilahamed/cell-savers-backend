@@ -244,6 +244,61 @@ const customerMyBookings = async (payload: IUserAuthPayload) => {
   return result;
 };
 
+const confirmBooking = async (id: string) => {
+  const isBookingExist = await prisma.booking.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!isBookingExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking does not exist');
+  }
+
+  const result = await prisma.booking.update({
+    where: {
+      id,
+    },
+    data: {
+      bookingStatus: BOOKING_STATUS.CONFIRM,
+      issueStatus: ISSUE_STATUS.ONGOING,
+    },
+  });
+
+  return result;
+};
+
+const cancelBooking = async (id: string) => {
+  const isBookingExist = await prisma.booking.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!isBookingExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking does not exist');
+  }
+
+  if (isBookingExist.bookingStatus === BOOKING_STATUS.CONFIRM) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'Booking confirmed, you can not cancel the booking!',
+    );
+  }
+
+  const result = await prisma.booking.update({
+    where: {
+      id,
+    },
+    data: {
+      bookingStatus: BOOKING_STATUS.CANCELLED,
+      issueStatus: ISSUE_STATUS.CANCELLED,
+    },
+  });
+
+  return result;
+};
+
 export const BookingService = {
   insertIntoDB,
   getAllFromDB,
@@ -251,4 +306,6 @@ export const BookingService = {
   updateIntoDB,
   deleteFromDB,
   customerMyBookings,
+  confirmBooking,
+  cancelBooking,
 };
