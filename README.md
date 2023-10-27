@@ -2,6 +2,13 @@
 
 Cell Savers is a mobile repair booking system project. In this project, users can log in to different roles such as Super Admin, Admin, Technician, and Customer. This project has several types of services for repairing mobile based on customer requirements. After getting the service, the user can rate the service and also share their feedback.
 
+---
+
+## Important links-
+
+- [CellSavers Frontend site](https://cellsavers-frontend-khshakilahamed.vercel.app/)
+- [CellSavers Frontend github](https://github.com/khshakilahamed/cell-savers-frontend)
+
 ## Functional Requirements
 
 ### Customer
