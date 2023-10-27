@@ -91,6 +91,8 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 - Technician can only update certain fields.
 - Technician can provide service.
 
+---
+
 ## API Endpoints
 
 ### User
@@ -212,3 +214,9 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 - `GET /time-slots/:id`
 - `PATCH /time-slots/:id`
 - `DELETE /time-slots/:id`
+
+---
+
+## ER Diagram
+
+![Alt text](mobile_repair.jpg)
