@@ -8,6 +8,7 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 
 - [CellSavers Frontend site](https://cellsavers-frontend-khshakilahamed.vercel.app/)
 - [CellSavers Frontend github](https://github.com/khshakilahamed/cell-savers-frontend)
+- [ER Diagram link](https://drive.google.com/file/d/1ojSbXIuJrskiOZ_y7eJVQQAlQ4jpwbvI/view?usp=sharing)
 
 ## Functional Requirements
 
