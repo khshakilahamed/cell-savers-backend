@@ -165,6 +165,7 @@ model Booking {
   bookingStatus    BOOKING_STATUS @default(PENDING)
   issueStatus      ISSUE_STATUS   @default(PENDING)
   readyToReview    Boolean        @default(false) @map("ready_to_review")
+  fixDescription   String?        @default("") @map("fix_descritpion")
 
   customerId String   @map("customer_id")
   customer   Customer @relation(fields: [customerId], references: [id])

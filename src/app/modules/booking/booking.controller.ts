@@ -107,6 +107,20 @@ const cancelBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const techniciansBooking = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as any;
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const result = await BookingService.techniciansBooking(user, options);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Booking fetched successfully',
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
 export const BookingController = {
   insertIntoDB,
   getAllFromDB,
@@ -116,4 +130,5 @@ export const BookingController = {
   customerMyBookings,
   confirmBooking,
   cancelBooking,
+  techniciansBooking,
 };

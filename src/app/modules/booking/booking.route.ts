@@ -14,8 +14,14 @@ router.get(
 
 router.get(
   '/customer-my-bookings',
-  auth(USER_ROLE.customer, USER_ROLE.technician),
+  auth(USER_ROLE.customer),
   BookingController.customerMyBookings,
+);
+
+router.get(
+  '/technician-bookings',
+  auth(USER_ROLE.technician),
+  BookingController.techniciansBooking,
 );
 
 router.get(

@@ -189,7 +189,7 @@ const deleteFromDB = async (id: string): Promise<CustomerAgent | null> => {
 
 const getAvailableTechnician = async (payload: {
   bookingDate?: string;
-  timeSlot: string;
+  timeSlot?: string;
 }) => {
   const alreadyBookedOnGivenDate = await prisma.booking.findMany({
     where: {

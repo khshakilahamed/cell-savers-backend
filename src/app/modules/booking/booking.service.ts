@@ -194,7 +194,7 @@ const updateIntoDB = async (
       payload.issueStatus === ISSUE_STATUS.NOT_FIXED)
   ) {
     payload.readyToReview = true;
-  } else {
+  } else if (payload.bookingStatus !== BOOKING_STATUS.CONFIRM) {
     payload.readyToReview = false;
   }
 
@@ -299,6 +299,60 @@ const cancelBooking = async (id: string) => {
   return result;
 };
 
+const techniciansBooking = async (
+  payload: IUserAuthPayload,
+  options: IPaginationOptions,
+) => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+
+  const customerAgent = await prisma.customerAgent.findFirst({
+    where: {
+      userId: payload.userId,
+      email: payload.email,
+    },
+  });
+
+  if (!customerAgent) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User does not found');
+  }
+
+  const result = await prisma.booking.findMany({
+    include: {
+      customer: true,
+      customerAgent: true,
+      service: true,
+      slot: true,
+      reviews: true,
+    },
+    where: {
+      customerAgentId: customerAgent?.id,
+    },
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: 'desc',
+          },
+  });
+
+  const total = await prisma.booking.count({
+    where: {
+      customerAgentId: customerAgent?.id,
+    },
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
 export const BookingService = {
   insertIntoDB,
   getAllFromDB,
@@ -308,4 +362,5 @@ export const BookingService = {
   customerMyBookings,
   confirmBooking,
   cancelBooking,
+  techniciansBooking,
 };
