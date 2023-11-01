@@ -38,6 +38,12 @@ router.post(
 );
 
 router.patch(
+  '/technician-my-booking',
+  auth(USER_ROLE.technician),
+  BookingController.updateTechnicianBooking,
+);
+
+router.patch(
   '/:id',
   validateRequest(BookingValidations.update),
   auth(USER_ROLE.admin, USER_ROLE.super_admin),

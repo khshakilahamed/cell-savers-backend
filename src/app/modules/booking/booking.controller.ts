@@ -121,6 +121,21 @@ const techniciansBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateTechnicianBooking = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = req.user as any;
+    const { ...data } = req.body;
+    const result = await BookingService.updateTechnicianBooking(user, data);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Booking updated successfully',
+      data: result,
+    });
+  },
+);
+
 export const BookingController = {
   insertIntoDB,
   getAllFromDB,
@@ -131,4 +146,5 @@ export const BookingController = {
   confirmBooking,
   cancelBooking,
   techniciansBooking,
+  updateTechnicianBooking,
 };

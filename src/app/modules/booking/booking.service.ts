@@ -353,6 +353,51 @@ const techniciansBooking = async (
   };
 };
 
+const updateTechnicianBooking = async (
+  authUser: IUserAuthPayload,
+  payload: Partial<Booking>,
+) => {
+  const customerAgent = await prisma.customerAgent.findFirst({
+    where: {
+      userId: authUser.userId,
+      email: authUser.email,
+    },
+  });
+
+  if (!customerAgent) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User does not found');
+  }
+
+  const isBookingExist = await prisma.booking.findFirst({
+    where: {
+      id: payload?.id,
+      customerAgentId: customerAgent?.id,
+    },
+  });
+
+  if (!isBookingExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Booking does not exist');
+  }
+
+  if (isBookingExist.bookingStatus !== BOOKING_STATUS.CONFIRM) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+  const result = await prisma.booking.update({
+    where: {
+      id: payload?.id,
+      customerAgentId: customerAgent?.id,
+    },
+    data: {
+      issueStatus: payload.issueStatus,
+      fixDescription: payload.fixDescription,
+      readyToReview: true,
+    },
+  });
+
+  return result;
+};
+
 export const BookingService = {
   insertIntoDB,
   getAllFromDB,
@@ -363,4 +408,5 @@ export const BookingService = {
   confirmBooking,
   cancelBooking,
   techniciansBooking,
+  updateTechnicianBooking,
 };

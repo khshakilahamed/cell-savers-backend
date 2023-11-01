@@ -9,19 +9,20 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 
 const app: Application = express();
 
-// const corsOptions = {
-//   // origin: true,
-//   origin: 'https://cellsavers-frontend-khshakilahamed.vercel.app/',
-//   credentials: true,
-// };
-// app.use('*', cors(corsOptions));
-app.use(
-  cors({
-    // origin: true,
-    origin: 'https://cellsavers-frontend-khshakilahamed.vercel.app',
-    credentials: true,
-  }),
-);
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
+app.use('*', cors(corsOptions));
+
+// app.use(
+//   cors({
+//     // origin: true,
+//     origin: 'https://cellsavers-frontend-khshakilahamed.vercel.app',
+//     credentials: true,
+//   }),
+// );
+
 app.use(cookieParser());
 
 //parser
