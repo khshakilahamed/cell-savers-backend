@@ -98,6 +98,9 @@ const getFromDB = async (
 
 const getSingleFromDB = async (id: string): Promise<Blog | null> => {
   const result = await prisma.blog.findFirst({
+    include: {
+      customerAgent: true
+    },
     where: {
       id,
     },
