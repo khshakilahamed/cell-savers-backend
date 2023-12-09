@@ -235,6 +235,8 @@ const forgotPassword = async (userEmail: string) => {
     </div>
   `,
   );
+
+  return 'Check your email';
 };
 
 const resetPassword = async (
