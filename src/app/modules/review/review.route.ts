@@ -12,11 +12,7 @@ router.get(
   ReviewController.getSingleFromDB,
 );
 
-router.get(
-  '/',
-  auth(USER_ROLE.admin, USER_ROLE.super_admin),
-  ReviewController.getFromDB,
-);
+router.get('/', ReviewController.getFromDB);
 
 router.post(
   '/',
@@ -28,7 +24,7 @@ router.post(
 router.patch(
   '/:id',
   validateRequest(ReviewValidation.update),
-  auth(USER_ROLE.customer),
+  auth(USER_ROLE.customer, USER_ROLE.admin, USER_ROLE.super_admin),
   ReviewController.updateIntoDB,
 );
 

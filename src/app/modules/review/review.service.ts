@@ -41,8 +41,22 @@ const insertIntoDB = async (
     customerAgentId: booking?.customerAgentId,
   };
 
-  const result = await prisma.review.create({
-    data: reviewPayload,
+  const result = await prisma.$transaction(async transactionClient => {
+    await prisma.booking.update({
+      where: {
+        id: payload.bookingId,
+        customerId: customer?.id,
+      },
+      data: {
+        isReviewDone: true,
+      },
+    });
+
+    const review = await transactionClient.review.create({
+      data: reviewPayload,
+    });
+
+    return review;
   });
 
   return result;

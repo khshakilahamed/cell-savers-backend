@@ -14,6 +14,7 @@ import {
 import prisma from '../../../shared/prisma';
 import { USER_ROLE } from '@prisma/client';
 import { CreateUserType } from '../user/user.interface';
+import { sendEmail } from './auth.utils';
 
 const customerRegister = async (
   payload: CreateUserType,
@@ -192,9 +193,83 @@ const changePassword = async (
   return 'Password Changed';
 };
 
+const forgotPassword = async (userEmail: string) => {
+  const isExistUser = await UserUtils.isExistUser(userEmail);
+
+  if (!isExistUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User Does not exist');
+  }
+
+  const passwordResetToken = jwtHelpers.passwordResetToken(
+    { email: isExistUser.email },
+    config.jwt.secret as Secret,
+    '5m',
+  );
+
+  let profile = null;
+
+  if (isExistUser.role.title === USER_ROLE.customer) {
+    profile = await prisma.customer.findFirst({
+      where: {
+        userId: isExistUser.id,
+      },
+    });
+  } else {
+    profile = await prisma.customerAgent.findFirst({
+      where: {
+        userId: isExistUser.id,
+      },
+    });
+  }
+
+  const resetLink: string =
+    config.reset_link +
+    `email=${isExistUser?.email}&token=${passwordResetToken}`;
+
+  await sendEmail(
+    isExistUser?.email,
+    `
+    <div>
+      <p>Hi, ${profile?.firstName} ${profile?.lastName}</p>
+      <p>Your password reset link: <a href=${resetLink}>Click Here</a></p>
+    </div>
+  `,
+  );
+};
+
+const resetPassword = async (
+  payload: { email: string; newPassword: string },
+  token: string,
+) => {
+  const isExistUser = await UserUtils.isExistUser(payload.email);
+
+  if (!isExistUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User Does not exist');
+  }
+
+  jwtHelpers.verifyToken(token, config.jwt.secret as Secret);
+
+  const hashedPassword = await hashPasswordHelpers.hashPassword(
+    payload.newPassword,
+  );
+
+  await prisma.user.update({
+    where: {
+      email: payload.email,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  return 'password recovered';
+};
+
 export const AuthService = {
   customerRegister,
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
+  resetPassword,
 };

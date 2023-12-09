@@ -6,8 +6,9 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 
 ## Important links-
 
-- [CellSavers Frontend site](https://cellsavers-frontend-khshakilahamed.vercel.app/)
+- [CellSavers Frontend live site](https://cellsavers-frontend-khshakilahamed.vercel.app/)
 - [CellSavers Frontend github](https://github.com/khshakilahamed/cell-savers-frontend)
+- [CellSavers Backend live](https://cell-savers-backend.vercel.app/api/v1)
 - [ER Diagram link](https://drive.google.com/file/d/1ojSbXIuJrskiOZ_y7eJVQQAlQ4jpwbvI/view?usp=sharing)
 
 ## Functional Requirements
@@ -144,6 +145,7 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 - `GET /bookings/page=1&limit=10&sortBy=createdAt&sortOrder=asc`
 - `GET /bookings/customer-my-bookings`
 - `GET /bookings/:id`
+- `PATCH /technician-my-booking`
 - `PATCH /bookings/:id`
 - `PATCH /bookings/confirm-booking/:id`
 - `PATCH /bookings/cancel-booking/:id`
@@ -214,7 +216,7 @@ Cell Savers is a mobile repair booking system project. In this project, users ca
 - `PATCH /services/:id`
 - `DELETE /services/:id`
 
-### Services
+### Time slots
 
 - `POST /time-slots`
 - `GET /time-slots`
