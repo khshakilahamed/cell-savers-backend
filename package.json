@@ -46,6 +46,7 @@
     "http-status": "^1.6.2",
     "husky": "^8.0.3",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.2",
     "lint-staged": "^13.2.3",
     "nodemailer": "^6.9.7",
     "zod": "^3.22.4"

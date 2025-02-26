@@ -13,6 +13,7 @@ import {
   bookingRelationalFieldsMapper,
   bookingSearchableFields,
 } from './booking.constant';
+import { MailService } from '../mail/mail.service';
 
 const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
   const isCustomerExist = await prisma.customer.findFirst({
@@ -22,7 +23,7 @@ const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
     },
   });
 
-  console.log(isCustomerExist);
+  // console.log(isCustomerExist);
 
   if (!isCustomerExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Customer does not exist');
@@ -38,7 +39,7 @@ const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
   });
 
   if (alreadyHaveBookingToday) {
-    throw new ApiError(httpStatus.CONFLICT, 'You have already a booking today');
+    throw new ApiError(httpStatus.CONFLICT, `You have already a booking on ${alreadyHaveBookingToday?.bookingDate}`);
   }
 
   const isAvailable = await prisma.booking.findFirst({
@@ -62,6 +63,8 @@ const insertIntoDB = async (auth: IUserAuthPayload, payload: Booking) => {
       service: true,
     },
   });
+
+  await MailService.bookingMail();
 
   return result;
 };

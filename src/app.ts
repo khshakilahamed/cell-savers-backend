@@ -6,6 +6,7 @@ import routes from './app/routes';
 
 import cookieParser from 'cookie-parser';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import { PdfService } from './app/modules/pdf/pdf.service';
 
 const app: Application = express();
 
@@ -40,6 +41,8 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(globalErrorHandler);
+
+PdfService.bookingReceipt()
 
 app.use((req: Request, res: Response) => {
   res.status(httpStatus.NOT_FOUND).json({

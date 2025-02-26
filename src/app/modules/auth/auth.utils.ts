@@ -1,19 +1,9 @@
-import nodemailer from 'nodemailer';
-import config from '../../../config';
+import config from "../../../config";
+import { MailUtils } from "../mail/mail.utils";
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-    user: config.user,
-    pass: config.app_pass,
-  },
-});
 
 export const sendEmail = async (to: string, html: string) => {
-  await transporter.sendMail({
+  await MailUtils.transporter.sendMail({
     from: config.user, // sender address
     to: to, // list of receivers
     subject: 'Password Reset', // Subject line
